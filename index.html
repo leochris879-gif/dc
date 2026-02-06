@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Will you be my Valentine?</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --bg1: #ffd6e7;
+      --bg2: #ffeef6;
+      --card: #ffffffcc;
+      --yes: #ff3b7a;
+      --yesHover: #ff1f68;
+      --accent: #d63384;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at top, var(--bg2), var(--bg1));
+      font-family: system-ui, sans-serif;
+      overflow: hidden;
+      padding: 16px;
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .card {
+      width: min(720px, 92vw);
+      padding: 26px 22px;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border-radius: 22px;
+      text-align: center;
+      box-shadow: 0 18px 60px rgba(0,0,0,.15);
+      position: relative;
+    }
+
+    .art {
+      width: min(200px, 60vw);
+      margin: 0 auto 10px;
+      display: block;
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.12));
+    }
+
+    h1, h2 {
+      font-size: clamp(24px, 4vw, 40px);
+      margin: 12px 0 18px;
+      color: var(--accent);
+    }
+
+    /* --- PAGE 1 ELEMENTS --- */
+    .button-zone {
+      position: relative;
+      width: 100%;
+      height: 150px;
+      margin: 0 auto;
+      touch-action: none;
+    }
+
+    button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 16px 24px;
+      font-size: 18px;
+      font-weight: 800;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,.14);
+      user-select: none;
+      transition: transform .12s ease, background .12s ease;
+    }
+
+    #yesBtn { left: 15%; background: var(--yes); color: #fff; z-index: 10; }
+    #noBtn { left: 60%; background: #e5e7eb; color: #111827; z-index: 5; }
+
+    /* --- PAGE 2: GIFT BOXES --- */
+    .gift-page {
+      display: none;
+      animation: pop .4s ease forwards;
+    }
+
+    .gift-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .gift-box {
+      background: white;
+      border: 3px dashed var(--yes);
+      border-radius: 15px;
+      padding: 20px 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 40px; /* Emoji size */
+    }
+
+    .gift-box:hover {
+      transform: translateY(-10px);
+      background: #fff0f5;
+    }
+
+    .gift-label {
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #555;
+    }
+
+    /* --- FINAL REVEAL --- */
+    #finalReveal {
+      display: none;
+      margin-top: 25px;
+      padding: 20px;
+      background: var(--yes);
+      color: white;
+      border-radius: 15px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      animation: pop .3s ease;
+    }
+
+    .hidden { display: none; }
+
+    @keyframes pop {
+      from { transform: scale(.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="confettiCanvas"></canvas>
+
+  <main class="card">
+    <div id="page1">
+      <svg class="art" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+        <path d="M250 50 C250 33 270 25 282 38 C294 25 314 33 314 50 C314 78 282 92 282 106 C282 92 250 78 250 50Z" fill="#ff4d7d"/>
+        <path d="M90 120 C90 70 140 40 190 60 C240 40 290 70 290 120 C290 180 240 210 190 210 C140 210 90 180 90 120Z" fill="#f7c7a1"/>
+        <circle cx="160" cy="130" r="8"/>
+        <circle cx="220" cy="130" r="8"/>
+      </svg>
+
+      <h1>nirali will you be my valentine?</h1>
+
+      <section class="button-zone" id="zone">
+        <button id="yesBtn">Yes</button>
+        <button id="noBtn">No</button>
+      </section>
+      <div class="hint" id="hint" style="margin-top:10px; opacity:0.7;">“No” seems a bit shy 😈</div>
+    </div>
+
+    <div id="page2" class="gift-page">
+      <h2>Yay! Pick your gift 🎁</h2>
+      <p>Choose one box to see your surprise!</p>
+      
+      <div class="gift-container">
+        <div class="gift-box" onclick="revealGift('🌸', 'A giant bouquet of your favorite flowers! 🌹')">
+          🎁<span class="gift-label">Option 1</span>
+        </div>
+        <div class="gift-box" onclick="revealGift('🍕', 'A romantic dinner with all your favorite foods! 🍝')">
+          🎁<span class="gift-label">Option 2</span>
+        </div>
+        <div class="gift-box" onclick="revealGift('👩‍❤️‍👨', 'A whole day spent with ME! (The best gift) ❤️')">
+          🎁<span class="gift-label">Option 3</span>
+        </div>
+      </div>
+
+      <div id="finalReveal"></div>
+    </div>
+  </main>
+
+  <script>
+    const page1 = document.getElementById("page1");
+    const page2 = document.getElementById("page2");
+    const zone = document.getElementById("zone");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const finalReveal = document.getElementById("finalReveal");
+    const confettiCanvas = document.getElementById("confettiCanvas");
+
+    /* --- RUNAWAY NO BUTTON LOGIC --- */
+    function growYes() {
+      const currentScale = parseFloat(yesBtn.style.transform.replace(/[^0-9.]/g, '')) || 1;
+      if (currentScale < 2.2) {
+        yesBtn.style.transform = `translateY(-50%) scale(${currentScale + 0.1})`;
+      }
+    }
+
+    function moveNo(px, py) {
+      const z = zone.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+      let dx = (b.left + b.width / 2) - px;
+      let dy = (b.top + b.height / 2) - py;
+      let mag = Math.hypot(dx, dy) || 1;
+      
+      let newLeft = (b.left - z.left) + (dx / mag) * 120;
+      let newTop  = (b.top - z.top) + (dy / mag) * 120;
+
+      newLeft = Math.max(0, Math.min(newLeft, z.width - b.width));
+      newTop  = Math.max(0, Math.min(newTop, z.height - b.height));
+
+      noBtn.style.left = newLeft + "px";
+      noBtn.style.top = newTop + "px";
+      noBtn.style.transform = "none";
+      growYes();
+    }
+
+    zone.addEventListener("pointermove", e => {
+      const b = noBtn.getBoundingClientRect();
+      const d = Math.hypot((b.left + b.width / 2) - e.clientX, (b.top + b.height / 2) - e.clientY);
+      if (d < 120) moveNo(e.clientX, e.clientY);
+    });
+
+    /* --- YES BUTTON CLICK --- */
+    yesBtn.addEventListener("click", () => {
+      page1.style.display = "none";
+      page2.style.display = "block";
+      triggerConfetti();
+    });
+
+    /* --- GIFT REVEAL --- */
+    function revealGift(emoji, text) {
+      // Hide the boxes
+      document.querySelector('.gift-container').style.display = 'none';
+      document.querySelector('#page2 p').style.display = 'none';
+      
+      // Show the reveal
+      finalReveal.style.display = "block";
+      finalReveal.innerHTML = `<div style="font-size:50px">${emoji}</div><br>${text}`;
+      
+      // Extra confetti for the gift!
+      triggerConfetti();
+    }
+
+    /* --- CONFETTI --- */
+    const confettiInstance = confetti.create(confettiCanvas, { resize: true });
+    function triggerConfetti() {
+      confettiInstance({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    }
+  </script>
+</body>
+</html>
